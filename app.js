@@ -44,44 +44,91 @@ function operate(operator, num1, num2) {
 }
 
 function numericalInput(e) {
-  if (numericalDisplay.innerText.length === 10) {
-    return;
-  }
-  if (numericalDisplay.innerText === '0') {
-    numericalDisplay.innerText = e.target.innerText;
-  } else if (gotResult) {
-    if (numericalDisplay.innerText === String(result))
-      numericalDisplay.innerText = '';
-    numericalDisplay.innerText += e.target.innerText;
+  if (e.key) {
+    if (numericalDisplay.innerText.length === 10) {
+      return;
+    }
+    if (numericalDisplay.innerText === '0') {
+      numericalDisplay.innerText = e.key;
+    } else if (gotResult) {
+      if (numericalDisplay.innerText === String(result))
+        numericalDisplay.innerText = '';
+      numericalDisplay.innerText += e.key;
+    } else {
+      numericalDisplay.innerText += e.key;
+    }
   } else {
-    numericalDisplay.innerText += e.target.innerText;
+    if (numericalDisplay.innerText.length === 10) {
+      return;
+    }
+    if (numericalDisplay.innerText === '0') {
+      numericalDisplay.innerText = e.target.innerText;
+    } else if (gotResult) {
+      if (numericalDisplay.innerText === String(result))
+        numericalDisplay.innerText = '';
+      numericalDisplay.innerText += e.target.innerText;
+    } else {
+      numericalDisplay.innerText += e.target.innerText;
+    }
   }
 }
 
 function operatorCalculation(e) {
-  if (operator) {
-    numberTwo = parseFloat(numericalDisplay.innerText);
-    result = operate(operator, numberOne, numberTwo);
+  if (e.key) {
+    if (numberOne === 0 && numericalDisplay.innerText === '0' && operator) {
+      numberOne = 0;
+      numericalDisplay.innerText = '0';
+      operator = e.key;
+      calculationDisplay.innerText = `${numberOne} ${operator}`;
+      return;
+    }
+    if (operator) {
+      numberTwo = parseFloat(numericalDisplay.innerText);
+      result = operate(operator, numberOne, numberTwo);
 
-    numericalDisplay.innerText = String(result);
-    numberOne = result;
-    operator = e.target.innerText;
-    calculationDisplay.innerText = `${result} ${operator}`;
-    gotResult = true;
-    canEquate = true;
+      numericalDisplay.innerText = String(result);
+      numberOne = result;
+      operator = e.key;
+      calculationDisplay.innerText = `${result} ${operator}`;
+      gotResult = true;
+      canEquate = true;
+    } else {
+      numberOne = parseFloat(numericalDisplay.innerText);
+      operator = e.key;
+      calculationDisplay.innerText = `${numberOne} ${operator}`;
+      numericalDisplay.innerText = 0;
+      canEquate = true;
+    }
   } else {
-    numberOne = parseFloat(numericalDisplay.innerText);
-    operator = e.target.innerText;
-    calculationDisplay.innerText = `${numberOne} ${operator}`;
-    numericalDisplay.innerText = 0;
-    canEquate = true;
+    if (numberOne === 0 && numericalDisplay.innerText === '0' && operator) {
+      numberOne = 0;
+      numericalDisplay.innerText = '0';
+      operator = e.target.innerText;
+      calculationDisplay.innerText = `${numberOne} ${operator}`;
+      return;
+    }
+    if (operator) {
+      numberTwo = parseFloat(numericalDisplay.innerText);
+      result = operate(operator, numberOne, numberTwo);
+
+      numericalDisplay.innerText = String(result);
+      numberOne = result;
+      operator = e.target.innerText;
+      calculationDisplay.innerText = `${result} ${operator}`;
+      gotResult = true;
+      canEquate = true;
+    } else {
+      numberOne = parseFloat(numericalDisplay.innerText);
+      operator = e.target.innerText;
+      calculationDisplay.innerText = `${numberOne} ${operator}`;
+      numericalDisplay.innerText = 0;
+      canEquate = true;
+    }
   }
 }
 
 function equalsCalculation() {
-  if (!numberOne && !numberTwo) {
-    return;
-  } else if (canEquate === true) {
+  if (canEquate === true) {
     numberTwo = parseFloat(numericalDisplay.innerText);
     result = operate(operator, numberOne, numberTwo);
     calculationDisplay.innerText = `${numberOne} ${operator} ${numberTwo} = `;
@@ -124,6 +171,36 @@ function clear() {
   }
 }
 
+function keyboardInputs(e) {
+  if (e.key >= 0 && e.key <= 9) {
+    numericalInput(e);
+  }
+
+  if (e.key === '.') {
+    decimalCalc();
+  }
+
+  if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+    operatorCalculation(e);
+  }
+
+  if (e.key === 'Enter' || e.key === '=') {
+    equalsCalculation();
+  }
+
+  if (e.key === 'Backspace') {
+    clear();
+  }
+
+  if (e.key === 'Shift') {
+    allClear();
+  }
+
+  if (e.key === '/') {
+    e.preventDefault();
+  }
+}
+
 numBtnEl.forEach((button) => {
   button.addEventListener('click', numericalInput);
 });
@@ -139,3 +216,5 @@ decimalBtnEl.addEventListener('click', decimalCalc);
 allClearBtn.addEventListener('click', allClear);
 
 clearBtn.addEventListener('click', clear);
+
+window.addEventListener('keydown', keyboardInputs);
